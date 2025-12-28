@@ -1,52 +1,51 @@
 import streamlit as st
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
 
-data = {
-    "height": [150, 155, 160, 165, 170, 175, 180, 160, 170, 165],
-    "weight": [40, 45, 50, 55, 60, 65, 70, 80, 85, 90],
-    "age":    [18, 20, 22, 24, 26, 28, 30, 32, 35, 40],
-    "label":  [0, 0, 1, 1, 1, 1, 1, 2, 3, 3]
-}
+df = pd.read_csv("obesity_data.csv")
 
-df = pd.DataFrame(data)
-df["bmi"] = df["weight"] / (df["height"]/100)**2
-X = df[["bmi", "age"]]
-y = df["label"]
+le = LabelEncoder()
+df["Label"] = le.fit_transform(df["Label"])
 
-model = RandomForestClassifier(n_estimators=100, random_state=42)
-model.fit(X, y)
+df["bmi"] = df["BMI"]
 
-st.title("ML-Based Health Advisor !")
-st.write("This app uses Random Forest and BMI for better accuracy")
+X = df[["bmi", "Age"]]
+y = df["Label"]
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+model = RandomForestClassifier(n_estimators=200, random_state=42)
+model.fit(X_train, y_train)
+
+y_pred = model.predict(X_test)
+acc = accuracy_score(y_test, y_pred)
+
+st.title("AI Health Advisor with Real Data 🧠🥗")
+st.write(f"Model accuracy on test data: {acc:.2f}")
 
 height = st.number_input("Height (cm)", 100, 220)
 weight = st.number_input("Weight (kg)", 30, 200)
-age = st.number_input("Age", 1, 100)
+age = st.number_input("Age (years)", 1, 100)
 
-if st.button("Check Health"):
+if st.button("Get Health Advice"):
     bmi = weight / (height/100)**2
-    prediction = model.predict([[bmi, age]])[0]
 
-    if prediction == 0:
-        st.error("UNDERWEIGHT")
-        st.write(" Eat more calories:")
-        st.write("- Milk, rice, banana")
-        st.write("- Nuts & paneer")
-    elif prediction == 1:
-        st.success("HEALTHY")
-        st.write("Maintain balanced diet:")
-        st.write("- Fruits, vegetables")
-        st.write("- Dal, eggs")
-    elif prediction == 2:
-        st.warning("OVERWEIGHT")
-        st.write("Eat light & healthy:")
-        st.write("- Green vegetables")
-        st.write("- Avoid sugar & junk")
+    pred = model.predict([[bmi, age]])[0]
+    label = le.inverse_transform([pred])[0]
+
+    st.write(f"### 🩺 Based on BMI = {bmi:.2f}")
+    st.write(f"**Category:** {label}")
+
+    if label == "Underweight":
+        st.write("🍽 Eat more calories and protein: milk, nuts, rice, bananas")
+    elif label == "Normal Weight":
+        st.write("🥗 Maintain balanced diet: fruits, vegetables, dal, eggs")
+    elif label == "Overweight":
+        st.write("🥦 Eat lighter: green vegetables, avoid sugar & junk")
     else:
-        st.error("OBESE")
-        st.write("Strict diet needed:")
-        st.write("- High fiber food")
-        st.write("- Daily walking & exercise")
+        st.write("⚠️ Focus on strict diet & exercise: high fiber, walking daily")
 
-    st.info("This is an ML-based prediction, not medical advice.")
+    st.info("This prediction uses a real dataset and machine learning.")
