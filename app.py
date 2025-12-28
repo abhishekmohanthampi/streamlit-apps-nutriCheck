@@ -17,7 +17,7 @@ y = df["label"]
 model = RandomForestClassifier(n_estimators=100, random_state=42)
 model.fit(X, y)
 
-st.title("ML-Based Health Advisor 🧠🥗")
+st.title("ML-Based Health Advisor !")
 st.write("This app uses Random Forest and BMI for better accuracy")
 
 height = st.number_input("Height (cm)", 100, 220)
@@ -30,22 +30,22 @@ if st.button("Check Health"):
 
     if prediction == 0:
         st.error("UNDERWEIGHT")
-        st.write("🍽 Eat more calories:")
+        st.write(" Eat more calories:")
         st.write("- Milk, rice, banana")
         st.write("- Nuts & paneer")
     elif prediction == 1:
         st.success("HEALTHY")
-        st.write("🥗 Maintain balanced diet:")
+        st.write("Maintain balanced diet:")
         st.write("- Fruits, vegetables")
         st.write("- Dal, eggs")
     elif prediction == 2:
         st.warning("OVERWEIGHT")
-        st.write("🥦 Eat light & healthy:")
+        st.write("Eat light & healthy:")
         st.write("- Green vegetables")
         st.write("- Avoid sugar & junk")
     else:
         st.error("OBESE")
-        st.write("⚠️ Strict diet needed:")
+        st.write("Strict diet needed:")
         st.write("- High fiber food")
         st.write("- Daily walking & exercise")
 
